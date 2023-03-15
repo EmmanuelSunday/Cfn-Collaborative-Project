@@ -1,0 +1,87 @@
+Parameters:
+  LeopardHostedZoneId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: Hosted zone ID from Route 53
+    Default: nasHostedZoneId
+
+  nasAlbHostedZoneId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: us-west-2 ALB Hosted ZOne ID
+    Default: AlbHostedZoneId
+
+  nasS3HostedZoneId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: us-west-2 S3 Hosted ZOne ID
+    Default: s3HostedZoneId
+
+  nasRecordSets:
+    Type: String
+    Description: recordset name
+    Default: www.leopard.nasfinancialgroup.com
+
+  serverStack:
+    Type: String
+    Description: ServerStack
+    Default: serverStack #exported stack name
+
+Resources:
+  # MyBucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     AccessControl: PublicRead
+  #     BucketName: !Ref nasRecordSets
+  #     WebsiteConfiguration:
+  #       IndexDocument: index.html
+  #       ErrorDocument: error.html
+
+  # nasBucketPolicy:
+  #   Type: AWS::S3::BucketPolicy
+  #   Properties:
+  #     Bucket: !Ref MyBucket
+  #     PolicyDocument:
+  #       Version: 2012-10-17
+  #       Statement:
+  #         - Action:
+  #             - 's3:GetObject'
+  #           Effect: Allow
+  #           Resource: !Join
+  #             - ''
+  #             - - 'arn:aws:s3:::'
+  #               - !Ref MyBucket
+  #               - /*
+  #           Principal: '*'
+
+  RecordSetUS:
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      HostedZoneId: !Ref LeopardHostedZoneId
+      Name: !Ref nasRecordSets
+      AliasTarget:
+        DNSName:
+          Fn::ImportValue:
+            Fn::Sub: "${serverStack}-AlbDNS"
+        EvaluateTargetHealth: true
+        HostedZoneId: !Ref nasAlbHostedZoneId 
+      Type: A
+      SetIdentifier: 'United States'
+      GeoLocation:
+        CountryCode: US
+
+  RecordSetOthers:
+    Type: 'AWS::Route53::RecordSet'
+    # DependsOn: [MyBucket]
+    Properties:
+      HostedZoneId: !Ref LeopardHostedZoneId
+      Name: !Ref nasRecordSets
+      AliasTarget:
+        DNSName: www.leopard.nasfinancialgroup.com
+          # Fn::ImportValue:
+          #   Fn::Sub: "${serverStack}-WebsiteURL"
+        EvaluateTargetHealth: false
+        HostedZoneId: !Ref nasS3HostedZoneId
+      Type: A
+      SetIdentifier: Default
+      GeoLocation:
+        CountryCode: '*'
+
+  
