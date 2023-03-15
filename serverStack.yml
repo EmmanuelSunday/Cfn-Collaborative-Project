@@ -2,19 +2,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: This template containts the configuration details of deploying a highly available application server
 Parameters:
-    # environment:
-    # Type: String
-    # Default: development
-    # AllowedValues:
-    #   - production
-    #   - development
-    # owner:
-    #   Type: String
-    #   Default: "Fox-Cluster"
-    # ownerEmail:
-    #   Type: String
-    #   Default: foxcluster@gmail.com
-    
   DBName:
     Description: Database Initial name
     Type: String
@@ -336,15 +323,63 @@ Resources:
             TargetGroupArn: !Ref ELBTargetGroup
             Type: "forward"
 
+  nasBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: www.leopard.nasfinancialgroup.com
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+
+  nasBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref nasBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 's3:GetObject'
+            Effect: Allow
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref nasBucket
+                - /*
+            Principal: '*'
+
 
 Outputs: 
-   FrontEndAlbDNSName:
+  FrontEndAlbDNSName:
     Description: A reference to the security group of the webserver in the private subnet
     Value: !GetAtt FrontEndAlb.DNSName 
     Export:
       Name: !Sub '${AWS::StackName}-AlbDNS'
 
+  nasBucketURL:
+    Description: A reference to the bucket website url
+    Value: !GetAtt nasBucket.WebsiteURL 
+    Export:
+      Name: !Sub '${AWS::StackName}-WebsiteURL'
 
+  nasBucketDomainName:
+    Description: A reference to the bucket website DomainName
+    Value: !GetAtt nasBucket.DomainName 
+    Export:
+      Name: !Sub '${AWS::StackName}-DomainName'
+
+  nasBucketRDomainName:
+    Description: A reference to the bucket website RegionalDomainName
+    Value: !GetAtt nasBucket.RegionalDomainName 
+    Export:
+      Name: !Sub '${AWS::StackName}-RegionalDomainName'
+
+  nasBucketArn:
+    Description: A reference to the bucket website url
+    Value: !Ref nasBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-WebsiteArn'
   
            
   
