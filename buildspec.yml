@@ -20,9 +20,9 @@ phases:
       - cfn-lint networkStack.yml
       - cfn-lint serverStack.yml
       - echo CloudFormation Template Build started on `date`**
-      - aws cloudformation package --template-file permissionStack.yml --s3-bucket leopard-nasproject --output-template-file outPutTemplate.yml
-      - aws cloudformation wait stack-create-complete --stack-name permissionStack.yml
-      - aws cloudformation package --template-file networkStack.yml --s3-bucket leopard-nasproject --output-template-file outPutTemplate.yml
+      - aws cloudformation package --template-file permissionStack.yml --s3-bucket leopard-nasproject --output-template-file outPutTemplate.yml --capabilities CAPABILITY_NAMED_IAM --wait
+      # - aws cloudformation wait stack-create-complete --stack-name permissionStack.yml
+      - aws cloudformation package --template-file networkStack.yml --s3-bucket leopard-nasproject --output-template-file outPutTemplate.yml --capabilities CAPABILITY_NAMED_IAM
   post_build:
     commands:
       - echo Build completed on `date`
