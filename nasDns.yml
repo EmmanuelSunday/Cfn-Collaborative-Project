@@ -1,4 +1,12 @@
 Parameters:
+  NasSSLCertificate:
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: nasSSLCertificate
+
+  CFCachePolicy:
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: cloudfrontCachePolicyId
+
   LeopardHostedZoneId:
     Type: AWS::SSM::Parameter::Value<String>
     Description: Hosted zone ID from Route 53
@@ -9,10 +17,15 @@ Parameters:
     Description: us-west-2 ALB Hosted ZOne ID
     Default: AlbHostedZoneId
 
-  nasS3HostedZoneId:
+  cloudfronthostedZoneId:
     Type: AWS::SSM::Parameter::Value<String>
     Description: us-west-2 S3 Hosted ZOne ID
-    Default: s3HostedZoneId
+    Default: CFhostedZoneId
+
+  S3websiteDNS:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: us-west-2 S3 Hosted ZOne ID
+    Default: s3websiteDNS
 
   nasRecordSets:
     Type: String
@@ -25,32 +38,7 @@ Parameters:
     Default: serverStack #exported stack name
 
 Resources:
-  # MyBucket:
-  #   Type: AWS::S3::Bucket
-  #   Properties:
-  #     AccessControl: PublicRead
-  #     BucketName: !Ref nasRecordSets
-  #     WebsiteConfiguration:
-  #       IndexDocument: index.html
-  #       ErrorDocument: error.html
-
-  # nasBucketPolicy:
-  #   Type: AWS::S3::BucketPolicy
-  #   Properties:
-  #     Bucket: !Ref MyBucket
-  #     PolicyDocument:
-  #       Version: 2012-10-17
-  #       Statement:
-  #         - Action:
-  #             - 's3:GetObject'
-  #           Effect: Allow
-  #           Resource: !Join
-  #             - ''
-  #             - - 'arn:aws:s3:::'
-  #               - !Ref MyBucket
-  #               - /*
-  #           Principal: '*'
-
+# Creating Recordset for the leopard.nasfinancialgroup.com hosted zone
   RecordSetUS:
     Type: 'AWS::Route53::RecordSet'
     Properties:
@@ -69,19 +57,52 @@ Resources:
 
   RecordSetOthers:
     Type: 'AWS::Route53::RecordSet'
-    # DependsOn: [MyBucket]
+    DependsOn: [nasCFdistribution]
     Properties:
       HostedZoneId: !Ref LeopardHostedZoneId
       Name: !Ref nasRecordSets
       AliasTarget:
-        DNSName: www.leopard.nasfinancialgroup.com
-          # Fn::ImportValue:
-          #   Fn::Sub: "${serverStack}-WebsiteURL"
+        DNSName: !GetAtt nasCFdistribution.DomainName 
         EvaluateTargetHealth: false
-        HostedZoneId: !Ref nasS3HostedZoneId
+        HostedZoneId: !Ref cloudfronthostedZoneId
       Type: A
       SetIdentifier: Default
       GeoLocation:
         CountryCode: '*'
+
+  nasCFdistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref nasRecordSets
+        DefaultCacheBehavior: 
+          CachePolicyId: !Ref CFCachePolicy
+          ForwardedValues:
+            QueryString: 'false'
+            Cookies:
+              Forward: none
+          TargetOriginId: !Ref nasRecordSets
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+        Enabled: 'true'
+        CNAMEs: 
+          - !Ref nasRecordSets
+        ViewerCertificate:
+          AcmCertificateArn: !Ref NasSSLCertificate
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+        Origins:
+          - CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginKeepaliveTimeout: 30
+              OriginProtocolPolicy: match-viewer
+              OriginReadTimeout: 30
+              OriginSSLProtocols: 
+              - TLSv1.2
+            DomainName: !Ref S3websiteDNS    # www.leopard.nasfinancialgroup.com.s3-website.us-east-2.amazonaws.com
+            Id: !Ref nasRecordSets
+            # OriginPath: /index.html
 
   
