@@ -231,7 +231,6 @@ Resources:
   NasASG:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn:
-      # - ELBTargetGroup
       - FrontEndAlb
     Properties:
       AutoScalingGroupName: frontend-web-ASG
@@ -419,7 +418,6 @@ Resources:
   nasBackendASG:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn:
-      # - BackendELBTargetGroup
       - BackEndAlb
     Properties:
       AutoScalingGroupName: backend-web-ASG
