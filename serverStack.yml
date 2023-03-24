@@ -46,7 +46,7 @@ Parameters:
   
   instanceType:
     Type: String
-    Default: t2.micro
+    Default: t2.xlarge
     AllowedValues:
       - t2.micro
       - t2.nano
@@ -85,7 +85,27 @@ Mappings:
       web: ami-0ee679ef733e3b8e7
       app: ami-017f4811a06d3e510
 Resources:
-  NasDb:
+  nasBackendDb:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName:
+        Ref: DBName
+      Engine: MySQL
+      MasterUsername:
+        Ref: DBUsername
+      DBInstanceClass:
+        Ref: DBInstanceType
+      DBSubnetGroupName:
+        Fn::ImportValue:
+          !Sub "${NetWorkStack}-db-SubnetGroupName"
+      VPCSecurityGroups:
+        - Fn::ImportValue:
+            !Sub "${NetWorkStack}-RdsSgId"
+      AllocatedStorage: 200
+      MasterUserPassword:
+        Ref: DBPassword
+
+  nasFrondendDb:
     Type: AWS::RDS::DBCluster
     Properties:
       DBClusterIdentifier: nas-db-cluster
@@ -182,7 +202,7 @@ Resources:
 # Frontend Launch Template
   nasFrontendLT:
     Type: AWS::EC2::LaunchTemplate
-    DependsOn: [FileSystemResource, key, MountTargetResource1, MountTargetResource2, MountTargetResource3, NasDb]
+    DependsOn: [FileSystemResource, key, MountTargetResource1, MountTargetResource2, MountTargetResource3, nasFrondendDb]
     Properties:
       LaunchTemplateName: frontend-web-LT
       LaunchTemplateData:
@@ -223,7 +243,7 @@ Resources:
             sed -i "s/database_name_here/${DBName}/g" /var/www/html/wp-config.php
             sed -i "s/username_here/${DBUsername}/g" /var/www/html/wp-config.php
             sed -i "s/password_here/${DBPassword}/g" /var/www/html/wp-config.php
-            sed -i "s/localhost/${NasDb.Endpoint.Address}/g" /var/www/html/wp-config.php
+            sed -i "s/localhost/${nasFrondendDb.Endpoint.Address}/g" /var/www/html/wp-config.php
             amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
             systemctl restart httpd
   
@@ -369,7 +389,7 @@ Resources:
 
   nasBackendLT:
     Type: AWS::EC2::LaunchTemplate
-    DependsOn: [FileSystemResource, key, MountTargetResource1, MountTargetResource2, MountTargetResource3, NasDb]
+    DependsOn: [FileSystemResource, key, MountTargetResource1, MountTargetResource2, MountTargetResource3, nasBackendDb]
     Properties:
       LaunchTemplateName: backend-web-LT
       LaunchTemplateData:
@@ -410,7 +430,7 @@ Resources:
             sed -i "s/database_name_here/${DBName}/g" /var/www/html/wp-config.php
             sed -i "s/username_here/${DBUsername}/g" /var/www/html/wp-config.php
             sed -i "s/password_here/${DBPassword}/g" /var/www/html/wp-config.php
-            sed -i "s/localhost/${NasDb.Endpoint.Address}/g" /var/www/html/wp-config.php
+            sed -i "s/localhost/${nasBackendDb.Endpoint.Address}/g" /var/www/html/wp-config.php
             amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
             systemctl restart httpd
 
