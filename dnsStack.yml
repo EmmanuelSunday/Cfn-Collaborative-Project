@@ -103,6 +103,6 @@ Resources:
               - TLSv1.2
             DomainName: !Ref S3websiteDNS    # www.leopard.nasfinancialgroup.com.s3-website.us-east-2.amazonaws.com
             Id: !Ref nasRecordSets
-            OriginPath: /index.html
+            # OriginPath: /index.html
 
   
