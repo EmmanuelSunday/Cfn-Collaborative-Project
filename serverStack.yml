@@ -7,7 +7,22 @@ Parameters:
     Type: String
     Default: customer_info
 
+  DBName2:
+    Description: Database Initial name
+    Type: String
+    Default: staff_info
+
   DBUsername:
+    NoEcho: 'false'
+    Description: Username for database access
+    Type: String
+    MinLength: '2'
+    MaxLength: '16'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+    Default: nasadmin
+
+  DBUsername2:
     NoEcho: 'false'
     Description: Username for database access
     Type: String
@@ -90,7 +105,7 @@ Resources:
   nasFrondendDb:
     Type: AWS::RDS::DBCluster
     Properties:
-      DBClusterIdentifier: Leopard-nas-FrontEnd-db-cluster
+      DBClusterIdentifier: leopard-nas-FrontEnd-db-cluster
       AllocatedStorage: 400
       DatabaseName: !Ref DBName
       MasterUsername: !Ref DBUsername
@@ -373,10 +388,10 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       DBName:
-        Ref: DBName
+        Ref: DBName2
       Engine: MySQL
       MasterUsername:
-        Ref: DBUsername
+        Ref: DBUsername2
       DBInstanceClass:
         Ref: DBInstanceType
       DBSubnetGroupName:
@@ -432,8 +447,8 @@ Resources:
             tar -xzf latest.tar.gz
             cp -r wordpress/* /var/www/html/
             cp wordpress/wp-config-sample.php /var/www/html/wp-config.php
-            sed -i "s/database_name_here/${DBName}/g" /var/www/html/wp-config.php
-            sed -i "s/username_here/${DBUsername}/g" /var/www/html/wp-config.php
+            sed -i "s/database_name_here/${DBName2}/g" /var/www/html/wp-config.php
+            sed -i "s/username_here/${DBUsername2}/g" /var/www/html/wp-config.php
             sed -i "s/password_here/${DBPassword}/g" /var/www/html/wp-config.php
             sed -i "s/localhost/${nasBackendDb.Endpoint.Address}/g" /var/www/html/wp-config.php
             amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
