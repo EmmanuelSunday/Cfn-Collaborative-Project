@@ -46,7 +46,7 @@ Parameters:
   
   instanceType:
     Type: String
-    Default: t2.xlarge
+    Default: t2.medium
     AllowedValues:
       - t2.micro
       - t2.nano
