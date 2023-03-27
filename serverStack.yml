@@ -84,31 +84,13 @@ Mappings:
     ca-central-1:
       web: ami-0ee679ef733e3b8e7
       app: ami-017f4811a06d3e510
+
 Resources:
-  nasBackendDb:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      DBName:
-        Ref: DBName
-      Engine: MySQL
-      MasterUsername:
-        Ref: DBUsername
-      DBInstanceClass:
-        Ref: DBInstanceType
-      DBSubnetGroupName:
-        Fn::ImportValue:
-          !Sub "${NetWorkStack}-db-SubnetGroupName"
-      VPCSecurityGroups:
-        - Fn::ImportValue:
-            !Sub "${NetWorkStack}-RdsSgId"
-      AllocatedStorage: 200
-      MasterUserPassword:
-        Ref: DBPassword
 
   nasFrondendDb:
     Type: AWS::RDS::DBCluster
     Properties:
-      DBClusterIdentifier: nas-db-cluster
+      DBClusterIdentifier: Leopard-nas-FrontEnd-db-cluster
       AllocatedStorage: 400
       DatabaseName: !Ref DBName
       MasterUsername: !Ref DBUsername
@@ -386,6 +368,29 @@ Resources:
             Principal: '*'
 
 # INTRANET (BACKEND WEBSERVER) CONFIGURATION
+
+  nasBackendDb:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName:
+        Ref: DBName
+      Engine: MySQL
+      MasterUsername:
+        Ref: DBUsername
+      DBInstanceClass:
+        Ref: DBInstanceType
+      DBSubnetGroupName:
+        Fn::ImportValue:
+          !Sub "${NetWorkStack}-db-SubnetGroupName"
+      VPCSecurityGroups:
+        - Fn::ImportValue:
+            !Sub "${NetWorkStack}-RdsSgId"
+      AllocatedStorage: 200
+      MasterUserPassword:
+        Ref: DBPassword
+      Tags:
+        - Key: Name
+          Value: leopard-nas-BackEnd-db
 
   nasBackendLT:
     Type: AWS::EC2::LaunchTemplate
