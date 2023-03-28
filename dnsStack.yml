@@ -101,7 +101,7 @@ Resources:
               OriginReadTimeout: 30
               OriginSSLProtocols: 
               - TLSv1.2
-            DomainName: !Ref S3websiteDNS    # www.leopard.nasfinancialgroup.com.s3-website.us-east-2.amazonaws.com
+            DomainName: !Ref S3websiteDNS
             Id: !Ref nasRecordSets
             # OriginPath: /index.html
 
