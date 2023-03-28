@@ -62,29 +62,29 @@ Parameters:
     MinLength: '4'
     MaxLength: '15'
 
-  User17:
-    NoEcho: 'false'
-    Type: String
-    Description: Add an Engineer user name
-    Default: "Narcisse"
-    MinLength: '4'
-    MaxLength: '15'
+  # User17:
+  #   NoEcho: 'false'
+  #   Type: String
+  #   Description: Add an Engineer user name
+  #   Default: "Narcisse"
+  #   MinLength: '4'
+  #   MaxLength: '15'
 
-  User18:
-    NoEcho: 'false'
-    Type: String
-    Description: Add an Engineer user name
-    Default: "Cloudio"
-    MinLength: '4'
-    MaxLength: '15'
+  # User18:
+  #   NoEcho: 'false'
+  #   Type: String
+  #   Description: Add an Engineer user name
+  #   Default: "Cloudio"
+  #   MinLength: '4'
+  #   MaxLength: '15'
 
-  User19:
-    NoEcho: 'false'
-    Type: String
-    Description: Add an Engineer user name
-    Default: "Idriss"
-    MinLength: '4'
-    MaxLength: '15'
+  # User19:
+  #   NoEcho: 'false'
+  #   Type: String
+  #   Description: Add an Engineer user name
+  #   Default: "Idriss"
+  #   MinLength: '4'
+  #   MaxLength: '15'
 
   User2:
     NoEcho: 'false'
@@ -226,35 +226,35 @@ Resources:
         PasswordResetRequired: 'true'
       UserName: !Ref User16
 
-  NasUser17:
-    Type: AWS::IAM::User
-    Properties:
-      Groups: 
-        - !Ref NasIamGroup1
-      LoginProfile:
-        Password: !Ref 'Password'
-        PasswordResetRequired: 'true'
-      UserName: !Ref User17
+  # NasUser17:
+  #   Type: AWS::IAM::User
+  #   Properties:
+  #     Groups: 
+  #       - !Ref NasIamGroup1
+  #     LoginProfile:
+  #       Password: !Ref 'Password'
+  #       PasswordResetRequired: 'true'
+  #     UserName: !Ref User17
 
-  NasUser18:
-    Type: AWS::IAM::User
-    Properties:
-      Groups: 
-        - !Ref NasIamGroup1
-      LoginProfile:
-        Password: !Ref 'Password'
-        PasswordResetRequired: 'true'
-      UserName: !Ref User18
+  # NasUser18:
+  #   Type: AWS::IAM::User
+  #   Properties:
+  #     Groups: 
+  #       - !Ref NasIamGroup1
+  #     LoginProfile:
+  #       Password: !Ref 'Password'
+  #       PasswordResetRequired: 'true'
+  #     UserName: !Ref User18
 
-  NasUser19:
-    Type: AWS::IAM::User
-    Properties:
-      Groups: 
-        - !Ref NasIamGroup1
-      LoginProfile:
-        Password: !Ref 'Password'
-        PasswordResetRequired: 'true'
-      UserName: !Ref User19
+  # NasUser19:
+  #   Type: AWS::IAM::User
+  #   Properties:
+  #     Groups: 
+  #       - !Ref NasIamGroup1
+  #     LoginProfile:
+  #       Password: !Ref 'Password'
+  #       PasswordResetRequired: 'true'
+  #     UserName: !Ref User19
 
   NasUser2:
     Type: AWS::IAM::User
